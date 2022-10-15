@@ -1,0 +1,98 @@
+---
+title: "healthUtilisation"
+author: "Alessio Navarra"
+date: "2022-10-09"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+This is the health care utilisation dataset.
+
+This dataset includes statistics comparing different countries' level of health care use in terms of prevention, immunisation, screening, diagnostics exams, consultations, in-patient utilisation, average length of stay, diagnostic categories, acute care, in-patient care, discharge rates, transplants, dialyses, ICD-9-CM. The data is comparable with respect to units of measures such as days, percentages, population, number per capita, procedures, and available beds.
+
+*Keywords*: average length of stay, diagnostic categories, discharge rates, screening, transplants, dialyses, in-patient care, consultations, in-patient utilisation, diagnostics exams, ICD-9-CM, statistics, immunisation, prevention, acute care
+
+```{r intro}
+dataset <- read.csv("dataset.csv")
+summary(dataset)
+```
+
+## Exploratory analysis
+
+Let's find out what is included in the dataset. What are the variables captured?
+
+```{r exploratory analysis}
+unique(dataset$Variable)
+```
+
+Let's try picking a variable and visualising differences between countries with a plot
+
+```{r plot block}
+respiratory <- dataset[dataset$Variable == "Diseases of the respiratory system", ]
+respiratory2010 <- respiratory[respiratory$Year == 2010, ]
+respiratory2010 <- respiratory2010[respiratory2010$Measure == "Per 100 000 population", ]
+
+Resp_per100 <- data.frame(Country = respiratory2010$Country, Value = respiratory2010$Value)
+
+barplot(height = respiratory2010$Value,  
+        names.arg = respiratory2010$Country, 
+        main = "Example Barplot", 
+        xlab = "Group", 
+        ylab = "Height")
+
+```
+
+Having a look at doctors consultation
+```{r doctor consultations}
+consultations <- dataset[dataset$Variable == "Doctors consultations (in all settings)", ]
+consultations2010 <- consultations[consultations$Year == 2010, ]
+```
+
+Combining the 2 dataframes, shows that country with more incidence of respiratory diseases, also have more consultations
+```{r combined}
+combined <- merge(consultations2010, respiratory2010, by = "Country", all.x=FALSE, all.y=FALSE)
+combined <- combined[,c("Country", "Value.x", "Value.y")]
+
+library(ggplot2)
+ggplot(combined, aes(x=Value.x, y=Value.y)) +
+  geom_point(shape = 21, size = 1, stroke = 1, color = 'black', fill='red')
+```
+UK data on several conditions
+```{r uk}
+uk <- dataset[dataset$Country == "United Kingdom", ]
+uk <- uk[uk$Measure == "Per 100 000 population",]
+septicaemia <- uk[uk$Variable == "Septicaemia",]
+diabetes <- uk[uk$Variable == "Diabetes mellitus",]
+mi <- uk[uk$Variable == "Acute myocardial infarction",]
+hf <- uk[uk$Variable == "Heart failure",]
+copd <- uk[uk$Variable == "Chronic obstructive Pulmonary disease and bronchiectasis",]
+
+library(tidyverse)
+df3 <- bind_rows(copd, mi, diabetes)
+```
+
+Showing plots
+```{r plots}
+library(gridExtra)
+
+p1 <- ggplot(copd, aes(x=Year, y=Value)) + labs(title = "COPD") + geom_line() + geom_point() + ylim(220, 260)
+p2 <- ggplot(mi, aes(x=Year, y=Value)) + labs(title = "Myocardial Infarction") + geom_line() + geom_point() + ylim(130, 170)
+p3 <- ggplot(diabetes, aes(x=Year, y=Value)) + labs(title = "Diabetes Mellitus") + geom_line() + geom_point() + ylim(70, 90)
+grid.arrange(p1, p2, p3, nrow = 1,
+             bottom = "per 100,000 population")
+```
+Doctors per 1,000 population
+```{r doctors}
+doctors <- read_csv("doctors.csv")
+doctors <- doctors[doctors$Period <= 2018,]
+doctors$FactValueNumeric <- doctors$FactValueNumeric / 10
+docplot <- ggplot(doctors, aes(x=Period, y=FactValueNumeric)) + labs(title = "Doctors per 1,000") + geom_line() + geom_point() + ylim(2.5, 3.0) + xlim(2010,2018) + theme(aspect.ratio = 0.2)
+docplot
+```
