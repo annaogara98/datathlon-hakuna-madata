@@ -38,3 +38,17 @@ plot_consumption <- clean_alcohol_consumption %>%
 
 #next want to combine to compare both 
 #why have stays dropped but consumption stabilised in some places but not others?
+
+joined <- left_join(clean_hospital_days, clean_alcohol_consumption, by = c("Country" = "Country", "Year" = "Year")) %>% 
+  rename(days = Value.x,
+         consumption = Value.y)
+
+
+joined_plot <- joined %>% 
+  filter(Country == "United Kingdom" | Country == "Netherlands") %>% 
+  pivot_longer(days:consumption, names_to = "dayconsump", values_to = "value")%>% 
+  ggplot(aes(Year, value, group = paste0(dayconsump, Country), color = Country, shape = dayconsump)) +
+  geom_point() +
+  geom_line()
+joined_plot  
+
