@@ -52,3 +52,29 @@ joined_plot <- joined %>%
   geom_line()
 joined_plot  
 
+
+
+#want to join on the discharges per 100k of the population to compare if discharges and duration differ
+#read in discharge data
+discharge_per_100k_pop <- read_csv("hospital_discharges_per_100k_pop.csv")
+
+#clean
+clean_discharge_data <- discharge_per_100k_pop %>% 
+  select(Country, Year, Value) %>% 
+  rename(discharges = Value) %>% 
+  filter(Country == "United Kingdom" | Country == "Netherlands" | Country == "Finland" | Country == "Denmark" | Country == "Iceland")
+
+#join discharge data
+joined_days_discharges_consumption <- left_join(joined, clean_discharge_data, by = c("Country" = "Country", "Year" = "Year"))
+
+#plotting - this is messy and needs a checking over. Interesting comparison is possible, just not sure how best to visualise?
+days_discharges_consumption_plot <- joined_days_discharges_consumption %>% 
+  #filter(Country == "United Kingdom" | Country == "Netherlands") %>%
+  ggplot() +
+  geom_point(aes(Year, days, color = Country)) +
+  geom_line(aes(Year, days, color = Country))+
+  geom_point(aes(Year, consumption, color = Country)) +
+  geom_line(aes(Year, consumption, color = Country)) +
+  geom_line(aes(Year, discharges, colour = Country))
+
+days_discharges_consumption_plot  
