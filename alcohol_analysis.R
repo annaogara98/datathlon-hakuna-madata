@@ -66,3 +66,26 @@ days_discharges_consumption_plot <- joined_days_discharges_consumption %>%
   geom_line(aes(Year, discharges, colour = Country))
 
 days_discharges_consumption_plot  
+
+coeff <- 1
+
+joined_plot2 <- joined %>% 
+  filter(Country == "United Kingdom" | Country == "Netherlands") %>% 
+  ggplot(aes(x=Year)) +
+  geom_line(aes(y=days, color = Country)) +
+  geom_point(aes(y=consumption, color = Country)) +
+  scale_y_continuous(
+    name = "Hospital Stay (days)",
+    sec.axis = sec_axis(~.*coeff, name = "Alcohol Consumption (litres)")
+  ) +
+  ggtitle("Alcohol consumption and length of hospital stay over time")
+
+joined_plot2
+
+install.packages("ggnewscale")
+
+p <-joined_plot2 + ggnewscale::new_scale_colour() +
+  geom_line(aes(y=days, colour = Country)) +
+  scale_colour_manual("Days", values = c("grey60", "blue"))
+                          
+p
