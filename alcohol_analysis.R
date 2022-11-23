@@ -8,8 +8,7 @@ hospital_days <- read_csv("hospital_days.csv")
 glimpse(hospital_days)
 
 clean_hospital_days <- hospital_days %>%  
-  select(Country, Year, Value) %>% 
-  filter(Country == "United Kingdom" | Country == "Netherlands" | Country == "Finland" | Country == "Denmark" | Country == "Iceland")
+  select(Country, Year, Value)
 
 view(clean_hospital_days)
 
@@ -29,57 +28,29 @@ clean_alcohol_consumption <- alcohol_consumption_raw %>%
   filter(Country == "Norway" | Country == "Ireland" | Country == "France" | Country == "Estonia" | Country == "Belgium" | Country == "Austria" | Country == "United Kingdom" | Country == "Netherlands" | Country == "Finland" | Country == "Denmark" | Country == "Sweden") %>% 
   filter(Measure == "Litres per capita (15+)")
 
-install.packages("ggthemes")
 
-
-#plot alcohol consumption by country over time
+#plot alcohol consumption by country over time. # is for visualisation, highlighting countries of interest.
 plot_consumption <- clean_alcohol_consumption %>% 
   ggplot(aes(Year, Value, color = Country)) +
   scale_y_continuous(name = "Alcohol Consumption (Litres)") +
-  geom_point(alpha = 2) +
+  geom_point() +
   geom_line() +
   ggtitle("Alcohol Consumption Over Time") +
   #gghighlight::gghighlight(Country == "United Kingdom" | Country == "Netherlands", keep_scales = TRUE)+
   theme_clean()
   
-
-
 plot_consumption
-
 
 #next want to combine to compare both 
 #why have stays dropped but consumption stabilised in some places but not others?
 
+#Join hospital duration and alcohol consumption data
 joined <- left_join(clean_hospital_days, clean_alcohol_consumption, by = c("Country" = "Country", "Year" = "Year")) %>% 
   rename(days = Value.x,
          consumption = Value.y) 
 
-
-#%>% 
- # select(Country:consumption)
-
-
-joined_plot <- joined %>% 
-  filter(Country == "United Kingdom" | Country == "Netherlands") %>% 
-  pivot_longer(days:consumption, names_to = "dayconsump", values_to = "value")%>% 
-  ggplot(aes(Year, value, group = paste0(dayconsump, Country), color = Country, shape = dayconsump)) +
-  geom_point() +
-  geom_line()
-joined_plot  
-
-days_discharges_consumption_plot <- joined_days_discharges_consumption %>% 
-  #filter(Country == "United Kingdom" | Country == "Netherlands") %>%
-  ggplot() +
-  geom_point(aes(Year, days, color = Country)) +
-  geom_line(aes(Year, days, color = Country))+
-  geom_point(aes(Year, consumption, color = Country)) +
-  geom_line(aes(Year, consumption, color = Country)) +
-  geom_line(aes(Year, discharges, colour = Country))
-
-days_discharges_consumption_plot  
-
+#Plot hospital duration and alcohol consumption data for UK and Netherlands
 coeff <- 1
-
 joined_plot2 <- joined %>% 
   filter(Country == "United Kingdom" | Country == "Netherlands") %>% 
   ggplot(aes(x=Year)) +
@@ -89,13 +60,61 @@ joined_plot2 <- joined %>%
     name = "Hospital Stay (days)",
     sec.axis = sec_axis(~.*coeff, name = "Alcohol Consumption (litres)")
   ) +
-  ggtitle("Alcohol consumption and length of hospital stay over time")
+  ggtitle("Alcohol consumption and length of hospital stay over time") +
+  theme_clean()
 
 joined_plot2
-
-
+#Fix legend
 p <-joined_plot2 + ggnewscale::new_scale_colour() +
   geom_line(aes(y=days, colour = Country)) +
   scale_colour_manual("Days", values = c("red", "skyblue"))
-
 p
+
+
+# work with the discharge data
+#read in hospital discharged per 100k of population
+hospital_discharged <- read_csv("hospital_discharges_per_100k_pop.csv")
+
+#clean hospital discharges and only select UK and Netherlands
+clean_hospital_discharged <- hospital_discharged %>% 
+  select(Country, Year, Value, Measure) %>% 
+  filter(Country == "United Kingdom" | Country == "Netherlands")
+clean_hospital_discharged
+
+#plot hospital discharges
+plot_hospital_discharged <- clean_hospital_discharged %>% 
+  ggplot(aes(Year, Value, color = Country)) +
+  scale_y_continuous(name = "Hospital discharges per 100,000 of the population") +
+  geom_point() +
+  geom_line() +
+  ggtitle("Hospital discharges per 100,000 of the population over time") +
+  #gghighlight::gghighlight(Country == "United Kingdom" | Country == "Netherlands", keep_scales = TRUE)+
+  theme_clean()
+
+plot_hospital_discharged
+
+#combine to have discharges, duration, and consumption on one graph
+joined_days_duration_consumption <- joined %>% 
+  left_join(clean_hospital_discharged, by = c("Country" = "Country", "Year" = "Year")) #%>% 
+joined_days_duration_consumption
+
+#plot
+
+coeff2 <- 10
+joined_plot3 <- joined_days_duration_consumption %>% 
+  filter(Country == "United Kingdom" | Country == "Netherlands") %>% 
+  ggplot(aes(x=Year)) +
+  geom_line(aes(y=Value/coeff2, color = Country)) +
+  geom_point(aes(y=consumption, color = Country)) +
+  scale_y_continuous(
+    name = "Hospital Stay (days), Alcohol Consumption (litres)",
+    sec.axis = sec_axis(~.*coeff2, name = "Hospital Discharges per 100,000 population")
+  ) +
+  ggtitle("Alcohol consumption and hospital discharges over time") +
+  theme_clean()
+joined_plot3
+#fix legend
+p3 <-joined_plot3 + ggnewscale::new_scale_colour() +
+  geom_line(aes(y=Value/coeff2, colour = Country)) +
+  scale_colour_manual("Discharges", values = c("red", "skyblue"))
+p3
