@@ -25,15 +25,22 @@ alcohol_consumption_raw <- read_csv("alc_consumption.csv")
 
 clean_alcohol_consumption <- alcohol_consumption_raw %>% 
   select(Country, Year, Value, Measure) %>% 
-  filter(Country == "United Kingdom" | Country == "Netherlands" | Country == "Finland" | Country == "Denmark" | Country == "Iceland") %>% 
+  filter(Country == "United Kingdom" | Country == "Netherlands" | Country == "Finland" | Country == "Denmark" | Country == "Sweden") %>% 
   filter(Measure == "Litres per capita (15+)")
+
 
 #plot alcohol consumption by country over time
 plot_consumption <- clean_alcohol_consumption %>% 
   ggplot(aes(Year, Value, color = Country)) +
+  scale_y_continuous(name = "Alcohol Consumption (Litres)") +
   geom_point() +
-  geom_line()
+  geom_line() +
+  ggtitle("Alcohol Consumption Over Time")#+
+  #gghighlight::gghighlight(Country == "United Kingdom" | Country == "Netherlands")
+  
 
+
+plot_consumption
 
 
 #next want to combine to compare both 
@@ -82,10 +89,10 @@ joined_plot2 <- joined %>%
 
 joined_plot2
 
-install.packages("ggnewscale")
 
 p <-joined_plot2 + ggnewscale::new_scale_colour() +
   geom_line(aes(y=days, colour = Country)) +
-  scale_colour_manual("Days", values = c("grey60", "blue"))
+  scale_colour_manual("Days", values = c("red", "skyblue"))
                           
+
 p
