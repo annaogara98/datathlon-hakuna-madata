@@ -1,6 +1,7 @@
 #load packages
 library(tidyverse)
 library(dbplyr)
+library(ggthemes)
 
 #read in hospital stay data and clean to show X countries of interest
 hospital_days <- read_csv("hospital_days.csv")
@@ -28,16 +29,19 @@ clean_alcohol_consumption <- alcohol_consumption_raw %>%
   filter(Country == "Norway" | Country == "Ireland" | Country == "France" | Country == "Estonia" | Country == "Belgium" | Country == "Austria" | Country == "United Kingdom" | Country == "Netherlands" | Country == "Finland" | Country == "Denmark" | Country == "Sweden") %>% 
   filter(Measure == "Litres per capita (15+)")
 
+install.packages("ggthemes")
+
 
 #plot alcohol consumption by country over time
 plot_consumption <- clean_alcohol_consumption %>% 
   ggplot(aes(Year, Value, color = Country)) +
   scale_y_continuous(name = "Alcohol Consumption (Litres)") +
-  geom_point() +
+  geom_point(alpha = 2) +
   geom_line() +
   ggtitle("Alcohol Consumption Over Time") +
   #gghighlight::gghighlight(Country == "United Kingdom" | Country == "Netherlands", keep_scales = TRUE)+
-  theme_minimal()
+  theme_clean()
+  
 
 
 plot_consumption
