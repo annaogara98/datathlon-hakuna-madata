@@ -25,7 +25,7 @@ alcohol_consumption_raw <- read_csv("alc_consumption.csv")
 
 clean_alcohol_consumption <- alcohol_consumption_raw %>% 
   select(Country, Year, Value, Measure) %>% 
-  filter(Country == "Norway" | Country == "Ireland" | Country == "France" | Country == "Estonia" | Country == "Belgium" | Country == "Austria" | Country == "United Kingdom" | Country == "Netherlands" | Country == "Finland" | Country == "Denmark" | Country == "Sweden") %>% 
+  filter(Country == "France" | Country == "Germany" | Country == "United Kingdom" | Country == "Netherlands" | Country == "Switzerland" | Country == "Denmark" | Country == "Sweden") %>% 
   filter(Measure == "Litres per capita (15+)")
 
 
@@ -36,7 +36,7 @@ plot_consumption <- clean_alcohol_consumption %>%
   geom_point() +
   geom_line() +
   ggtitle("Alcohol Consumption Over Time") +
-  #gghighlight::gghighlight(Country == "United Kingdom" | Country == "Netherlands", keep_scales = TRUE)+
+ #gghighlight::gghighlight(Country == "United Kingdom" | Country == "Netherlands", keep_scales = TRUE)+
   theme_clean()
   
 plot_consumption
@@ -95,7 +95,7 @@ plot_hospital_discharged
 
 #combine to have discharges, duration, and consumption on one graph
 joined_days_duration_consumption <- joined %>% 
-  left_join(clean_hospital_discharged, by = c("Country" = "Country", "Year" = "Year")) #%>% 
+  full_join(clean_hospital_discharged, by = c("Country" = "Country", "Year" = "Year")) #%>% 
 joined_days_duration_consumption
 
 #plot
@@ -106,6 +106,7 @@ joined_plot3 <- joined_days_duration_consumption %>%
   ggplot(aes(x=Year)) +
   geom_line(aes(y=Value/coeff2, color = Country)) +
   geom_point(aes(y=consumption, color = Country)) +
+  scale_colour_discrete(name="Consumption") +
   scale_y_continuous(
     name = "Alcohol Consumption (litres)",
     sec.axis = sec_axis(~.*coeff2, name = "Hospital Discharges per 100,000 population")
@@ -117,5 +118,6 @@ joined_plot3
 p3 <-joined_plot3 + ggnewscale::new_scale_colour() +
   geom_line(aes(y=Value/coeff2, colour = Country)) +
   scale_colour_manual("Discharges", values = c("red", "skyblue"))
+
 p3
 
