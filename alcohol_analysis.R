@@ -25,7 +25,7 @@ alcohol_consumption_raw <- read_csv("alc_consumption.csv")
 
 clean_alcohol_consumption <- alcohol_consumption_raw %>% 
   select(Country, Year, Value, Measure) %>% 
-  filter(Country == "United Kingdom" | Country == "Netherlands" | Country == "Finland" | Country == "Denmark" | Country == "Sweden") %>% 
+  filter(Country == "Norway" | Country == "Ireland" | Country == "France" | Country == "Estonia" | Country == "Belgium" | Country == "Austria" | Country == "United Kingdom" | Country == "Netherlands" | Country == "Finland" | Country == "Denmark" | Country == "Sweden") %>% 
   filter(Measure == "Litres per capita (15+)")
 
 
@@ -35,9 +35,9 @@ plot_consumption <- clean_alcohol_consumption %>%
   scale_y_continuous(name = "Alcohol Consumption (Litres)") +
   geom_point() +
   geom_line() +
-  ggtitle("Alcohol Consumption Over Time")#+
-  #gghighlight::gghighlight(Country == "United Kingdom" | Country == "Netherlands")
-  
+  ggtitle("Alcohol Consumption Over Time") +
+  #gghighlight::gghighlight(Country == "United Kingdom" | Country == "Netherlands", keep_scales = TRUE)+
+  theme_minimal()
 
 
 plot_consumption
@@ -93,6 +93,5 @@ joined_plot2
 p <-joined_plot2 + ggnewscale::new_scale_colour() +
   geom_line(aes(y=days, colour = Country)) +
   scale_colour_manual("Days", values = c("red", "skyblue"))
-                          
 
 p
