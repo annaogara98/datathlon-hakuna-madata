@@ -107,7 +107,7 @@ joined_plot3 <- joined_days_duration_consumption %>%
   geom_line(aes(y=Value/coeff2, color = Country)) +
   geom_point(aes(y=consumption, color = Country)) +
   scale_y_continuous(
-    name = "Hospital Stay (days), Alcohol Consumption (litres)",
+    name = "Alcohol Consumption (litres)",
     sec.axis = sec_axis(~.*coeff2, name = "Hospital Discharges per 100,000 population")
   ) +
   ggtitle("Alcohol consumption and hospital discharges over time") +
@@ -118,3 +118,4 @@ p3 <-joined_plot3 + ggnewscale::new_scale_colour() +
   geom_line(aes(y=Value/coeff2, colour = Country)) +
   scale_colour_manual("Discharges", values = c("red", "skyblue"))
 p3
+
