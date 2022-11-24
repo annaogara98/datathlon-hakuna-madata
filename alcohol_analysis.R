@@ -10,8 +10,6 @@ glimpse(hospital_days)
 clean_hospital_days <- hospital_days %>%  
   select(Country, Year, Value)
 
-view(clean_hospital_days)
-
 #plot hospital stay duration by country over time
 plot_compare <- clean_hospital_days %>% 
   ggplot(aes(Year, Value, color = Country)) +
@@ -45,7 +43,7 @@ plot_consumption
 #why have stays dropped but consumption stabilised in some places but not others?
 
 #Join hospital duration and alcohol consumption data
-joined <- left_join(clean_hospital_days, clean_alcohol_consumption, by = c("Country" = "Country", "Year" = "Year")) %>% 
+joined <- full_join(clean_hospital_days, clean_alcohol_consumption, by = c("Country" = "Country", "Year" = "Year")) %>% 
   rename(days = Value.x,
          consumption = Value.y) 
 
@@ -97,7 +95,7 @@ plot_hospital_discharged
 joined_days_duration_consumption <- joined %>% 
   full_join(clean_hospital_discharged, by = c("Country" = "Country", "Year" = "Year")) #%>% 
 joined_days_duration_consumption
-
+view(joined_days_duration_consumption)
 #plot
 
 coeff2 <- 10
