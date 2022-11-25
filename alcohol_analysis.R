@@ -11,12 +11,22 @@ clean_hospital_days <- hospital_days %>%
   select(Country, Year, Value)
 
 #plot hospital stay duration by country over time
-plot_compare <- clean_hospital_days %>% 
+plot_compare <- clean_hospital_days %>%
+  filter(Country == "France" | Country == "Germany" | Country == "United Kingdom" | Country == "Netherlands" | Country == "Switzerland" | Country == "Denmark" | Country == "Sweden") %>%
   ggplot(aes(Year, Value, color = Country)) +
+  scale_y_continuous(name = "Average hospital stay duration (days)") +
   geom_point() +
-  geom_line()
+  geom_line()+
+  ggtitle("Average Hospital Stay Duration Over Time") +
+  theme_clean()
 
-plot_compare
+cbp1 <- c("#999999", "#E69F00", "#56B4E9", "#009E73",
+          "#F0E442", "#0072B2", "#D55E00")
+
+plot_compare_colour <- plot_compare + scale_color_manual(values = cbp1)
+
+plot_compare_colour
+
 
 #read in alcohol consumption data and clean to show X countries of interest
 alcohol_consumption_raw <- read_csv("alc_consumption.csv")
@@ -37,9 +47,7 @@ plot_consumption <- clean_alcohol_consumption %>%
   ggtitle("Alcohol Consumption Over Time") +
   #gghighlight::gghighlight(Country == "United Kingdom" | Country == "Netherlands", keep_scales = TRUE)+
   theme_clean()
-  
-cbp1 <- c("#999999", "#E69F00", "#56B4E9", "#009E73",
-          "#F0E442", "#0072B2", "#D55E00")
+
 
 
 plot_consumption_colour <- plot_consumption + scale_color_manual(values = cbp1)
