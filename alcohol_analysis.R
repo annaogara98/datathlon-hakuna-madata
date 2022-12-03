@@ -1,6 +1,6 @@
 #load packages
 library(tidyverse)
-library(dbplyr)
+library(dplyr)
 library(ggthemes)
 
 #read in hospital stay data and clean to show X countries of interest
@@ -81,7 +81,8 @@ joined_plot2 <- joined %>%
   ) +
   ggtitle("Alcohol consumption and length of hospital stay over time") +
   theme_clean()+
-  custom_colors
+  scale_colour_manual(values = cbp1)
+joined_plot2
 
 joined_plot2
 #Fix legend
@@ -125,7 +126,7 @@ view(joined_days_duration_consumption)
 
 coeff2 <- 10
 joined_plot3 <- joined_days_duration_consumption %>% 
-  #filter(Country == "United Kingdom" | Country == "Netherlands") %>% 
+  filter(Country == "United Kingdom" | Country == "Netherlands") %>% 
   ggplot(aes(x=Year)) +
   geom_line(aes(y=Value/coeff2, color = Country)) +
   geom_point(aes(y=consumption, color = Country)) +
@@ -137,10 +138,10 @@ joined_plot3 <- joined_days_duration_consumption %>%
   ggtitle("Alcohol consumption and hospital discharges over time") +
   theme_clean()
 joined_plot3
+
 #fix legend
 p3 <-joined_plot3 + ggnewscale::new_scale_colour() +
   geom_line(aes(y=Value/coeff2, colour = Country)) +
   scale_colour_manual("Discharges", values = cbp1)
 
 p3
-
